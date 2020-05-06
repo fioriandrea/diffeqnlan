@@ -22,8 +22,12 @@
 
 BEGIN {
     eof = "{EOF}"
-    idr = "^[a-zA-Z]+"
+    idr = "^[a-zA-Z][a-zA-Z0-9]+"
+    funnamer = idr "\\("
     numr = "^[0-9]+(\\.[0-9]+)?"
+    n = split("sin cos ln exp", nfunctions, " ")
+    for (i = 1; i <= n; i++) 
+        functions[nfunctions[i]] = 1
     print program()
 }
 
@@ -46,7 +50,7 @@ function lexer() {
     }
 
 
-    if (match(line, idr) || match(line, numr) || match(line, /^./)) {
+    if (match(line, numr) || match(line, funnamer) || match(line, idr) || match(line, /^./)) {
         setToken(substr(line, 1, RLENGTH))
         line = substr(line, RLENGTH + 1)
         return tok
@@ -75,11 +79,10 @@ function addExpr(    first, op, second) {
         op = tok
         lexer()
         second = mulExpr()
-        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+        first = sprintf("binary(%s, \"%s\", %s)", first, op, second)
     }
     return first
 }
-
 
 function mulExpr(    first, op, second) {
     first = powExpr()
@@ -87,7 +90,7 @@ function mulExpr(    first, op, second) {
         op = tok
         lexer()
         second = powExpr()
-        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+        first = sprintf("binary(%s, \"%s\", %s)", first, op, second)
     }
     return first
 }
@@ -98,7 +101,7 @@ function powExpr(    first, op, second) {
         op = tok
         lexer()
         second = powExpr()
-        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+        first = sprintf("binary(%s, \"%s\", %s)", first, op, second)
     }
     return first
 }
@@ -108,26 +111,27 @@ function unaryExpr(    op, second) {
         op = tok
         lexer()
         second = unaryExpr()
-        second = gen(sprintf("unary(%s, %s)", op, second))
+        second = sprintf("unary(%s, %s)", op, second)
     } else {
-        second = primaryExpr()
-    }
-    return second
+    second = primaryExpr()
+}
+return second
 }
 
 function primaryExpr() {
-    if (tok ~ numr) {
+    if (tok ~ numr) 
         return num()
-    } else if (tok == "(") {
+    else if (tok == "(") 
         return group()
-    } else {
+    else if (tok ~ funnamer)
+        return funCall()
+    else 
         error("unexpected token " tok)
-    }
 }
 
 function num() {
     lexer()
-    return gen(sprintf("number(%s)", oldTok))
+    return sprintf("number(%s)", oldTok)
 }
 
 function group(    e) {
@@ -136,9 +140,28 @@ function group(    e) {
     if (tok != ")")
         error("expexted closing ), got " tok)
     lexer()
-    return gen(sprintf("group(%s)", e))
+    return sprintf("group(%s)", e)
 }
 
-function gen(str) {
-    return str
+function funCall(    fname, args) {
+    fname = substr(tok, 1, length(tok) - 1) # remove (
+    if (!(fname in functions)) 
+        error("function " fname " doesn't exist")
+    lexer()
+    args = argList()
+    return sprintf("function(\"%s\", %s)", fname, args)
+}
+
+function argList(    args) {
+    if (tok == ")")
+        return "null"
+    args = expr()
+    while (tok == ",") {
+        lexer()
+        args = args ", " expr()
+    }
+    if (tok != ")")
+        error("expected ) after function argument list, got " tok)
+
+    return args
 }

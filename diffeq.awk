@@ -12,13 +12,14 @@
 # argList -> expr (, expr)*
 # id -> /[a-zA-Z]+/
 # num -> /[0-9]+(\.[0-9]+)?/
-# optInitList -> id [ num ] = num;
+# optInitList -> id [ (num | const) ] = (num | const);
+# const -> e | pi
 # EXAMPLE
 # 
-# x' = x^2 + t
-# y' = x + sin(y)
-# x(0) = 10
-# y(0) = 3
+# x' = x^2 + t;
+# y' = x + sin(y);
+# x[0] = 10;
+# y[0] = 3;
 
 BEGIN {
     eof = "{EOF}"
@@ -30,8 +31,8 @@ BEGIN {
     n = split("sin cos ln exp", nfunctions, " ")
     for (i = 1; i <= n; i++) 
         functions[nfunctions[i]] = 1
-    constants["e"] = 2.71
-    constants["pi"] = 3.14
+    constants["e"] = 2.71828183
+    constants["pi"] = 3.14159265
     variables["t"] = 1
 
     print program()

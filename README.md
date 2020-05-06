@@ -1,2 +1,2 @@
 # diffeqnlan
-A language to solve ODE
+A domain specific language to solve ODEs.

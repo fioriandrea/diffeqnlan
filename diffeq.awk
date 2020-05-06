@@ -24,12 +24,15 @@ BEGIN {
     eof = "{EOF}"
     idr = "^[a-zA-Z]+"
     numr = "^[0-9]+(\\.[0-9]+)?"
-    program()
+    print program()
 }
 
 function setToken(tv) {
     oldTok = tok
-    tok = tv
+    tok = tv # tok is always the current token
+    # also, after calling a rule, this happens:
+    # e.g.
+    # 1 + 2 * 3; addExpr() returns binary("1", "+", "2") with tok = *
 }
 
 function lexer() {
@@ -59,9 +62,83 @@ function error(msg) {
 
 function program() {
     lexer()
-    while (tok != eof) {
-        print tok
+    return expr()
+}
+
+function expr() {
+    return addExpr()
+}
+
+function addExpr(    first, op, second) {
+    first = mulExpr()
+    while (tok == "+" || tok == "-") {
+        op = tok
         lexer()
+        second = mulExpr()
+        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+    }
+    return first
+}
+
+
+function mulExpr(    first, op, second) {
+    first = powExpr()
+    while (tok == "*" || tok == "/") {
+        op = tok
+        lexer()
+        second = powExpr()
+        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+    }
+    return first
+}
+
+function powExpr(    first, op, second) {
+    first = unaryExpr()
+    if (tok == "^") {
+        op = tok
+        lexer()
+        second = powExpr()
+        first = gen(sprintf("binary(%s, \"%s\", %s)", first, op, second))
+    }
+    return first
+}
+
+function unaryExpr(    op, second) {
+    if (tok == "+" || tok == "-") {
+        op = tok
+        lexer()
+        second = unaryExpr()
+        second = gen(sprintf("unary(%s, %s)", op, second))
+    } else {
+        second = primaryExpr()
+    }
+    return second
+}
+
+function primaryExpr() {
+    if (tok ~ numr) {
+        return num()
+    } else if (tok == "(") {
+        return group()
+    } else {
+        error("unexpected token " tok)
     }
 }
 
+function num() {
+    lexer()
+    return gen(sprintf("number(%s)", oldTok))
+}
+
+function group(    e) {
+    lexer()
+    e = expr()
+    if (tok != ")")
+        error("expexted closing ), got " tok)
+    lexer()
+    return gen(sprintf("group(%s)", e))
+}
+
+function gen(str) {
+    return str
+}

@@ -22,12 +22,15 @@
 
 BEGIN {
     eof = "{EOF}"
-    idr = "^[a-zA-Z][a-zA-Z0-9]+"
+    idr = "^[a-zA-Z][a-zA-Z0-9]*"
     funnamer = idr "\\("
     numr = "^[0-9]+(\\.[0-9]+)?"
     n = split("sin cos ln exp", nfunctions, " ")
     for (i = 1; i <= n; i++) 
         functions[nfunctions[i]] = 1
+    constants["e"] = 2.71
+    constants["pi"] = 3.14
+
     print program()
 }
 
@@ -125,13 +128,15 @@ function primaryExpr() {
         return group()
     else if (tok ~ funnamer)
         return funCall()
+    else if (tok ~ idr) 
+        return id()
     else 
         error("unexpected token " tok)
 }
 
 function num() {
     lexer()
-    return sprintf("number(%s)", oldTok)
+    return sprintf("number(%f)", oldTok)
 }
 
 function group(    e) {
@@ -149,7 +154,7 @@ function funCall(    fname, args) {
         error("function " fname " doesn't exist")
     lexer()
     args = argList()
-    return sprintf("function(\"%s\", %s)", fname, args)
+    return sprintf("func(\"%s\", %s)", fname, args)
 }
 
 function argList(    args) {
@@ -165,3 +170,16 @@ function argList(    args) {
 
     return args
 }
+
+function id() {
+    if (tok in constants) {
+        lexer()
+        return sprintf("number(%f)", constants[oldTok])
+    }
+
+    if (!(tok in variables)) 
+        error("unknown variable " tok)
+    lexer() 
+    return sprintf("variable(\"%s\")", oldTok)
+}
+

@@ -12,7 +12,7 @@
 # argList -> expr (, expr)*
 # id -> /[a-zA-Z]+/
 # num -> /[0-9]+(\.[0-9]+)?/
-# optInitList -> id [ (num | const) ] = (num | const);
+# optInitList -> init id = (num | const);
 # const -> e | pi
 # EXAMPLE
 # 
@@ -26,11 +26,12 @@ BEGIN {
     idr = "^[a-zA-Z][a-zA-Z0-9]*"
     funnamer = idr "\\("
     derivnamer = idr "'"
-    initnamer = idr "\\["
+    initr = "^init"
     numr = "^[0-9]+(\\.[0-9]+)?"
     n = split("sin cos ln exp", nfunctions, " ")
+    split("1 1 1 1", nargs, " ") # arities
     for (i = 1; i <= n; i++) 
-        functions[nfunctions[i]] = 1
+        functions[nfunctions[i]] = nargs[i]
     constants["e"] = 2.71828183
     constants["pi"] = 3.14159265
     variables["t"] = 1
@@ -57,7 +58,7 @@ function lexer() {
     }
 
     if (match(line, numr) || match(line, funnamer) || match(line, derivnamer) ||
-        match(line, initnamer) || match(line, idr) || match(line, /^./)) {
+        match(line, initr) || match(line, idr) || match(line, /^./)) {
             setToken(substr(line, 1, RLENGTH))
             line = substr(line, RLENGTH + 1)
             return tok
@@ -115,24 +116,19 @@ function eqStat(    name, e) {
 } 
 
 function initList(    inits) {
-    while (tok ~ initnamer) {
+    while (tok ~ initr) {
         inits = initStat() "\n" inits
     }
     return inits
 }
 
-function initStat(    name, inst, val) {
-    if (tok !~ initnamer) 
-        error("expected init definition, got " tok)
-    name = substr(tok, 1, length(tok) - 1)
-    if (name == "t")
-        error("cannot have init declaration of t")
-    if (!(name in variables))
-        error("undefined variable " tok)
+function initStat(    name, val) {
     lexer()
-    inst = initVal()
-    if (tok != "]")
-        error("expected \"]\", got " tok)
+    if (tok == "t")
+        error("cannot have init declaration of t")
+    if (!(tok in variables))
+        error("undefined variable " tok)
+    name = tok
     lexer()
     if (tok != "=")
         error("expected \"=\", got " tok)
@@ -141,7 +137,7 @@ function initStat(    name, inst, val) {
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("initial(\"%s\", %f, %f)", name, inst, val)
+    return sprintf("initial(\"%s\", %f)", name, val)
 }
 
 function expr() {
@@ -225,12 +221,12 @@ function funCall(    fname, args) {
     if (!(fname in functions)) 
         error("function " fname " doesn't exist")
     lexer()
-    args = argList()
+    args = argList(functions[fname])
     return sprintf("func(\"%s\", %s)", fname, args)
 }
 
-function argList(    args) {
-    if (tok == ")")
+function argList(arity    , count, args) {
+    if (tok == ")") 
         return "null"
     args = expr()
     while (tok == ",") {

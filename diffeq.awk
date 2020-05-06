@@ -236,6 +236,7 @@ function argList(    args) {
     }
     if (tok != ")")
         error("expected ) after function argument list, got " tok)
+    lexer()
 
     return args
 }

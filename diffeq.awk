@@ -98,6 +98,8 @@ function eqStat(    name, e) {
     name = substr(tok, 1, length(tok) - 1) 
     if (name == "t")
         error("cannot define a time differential equation")
+    if (name in constants) 
+        error(name " is a constant")
     if (name in variables) 
         error(name " variable already defined")
     variables[name] = 1
@@ -248,8 +250,6 @@ function id() {
         return sprintf("number(%f)", constants[oldTok])
     }
 
-    if (!(tok in variables)) 
-        error("unknown variable " tok)
     lexer() 
     return sprintf("variable(\"%s\")", oldTok)
 }

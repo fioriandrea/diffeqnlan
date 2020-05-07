@@ -12,7 +12,7 @@ diffeq.awk is were the parser is written. interpreter.js is were definitions for
 
 ## Inner workings 
 
-Input is parsed through an AWK script, which generates JavaScript code. The generated code can be then executed using NodeJs. Each row of the generated code's output is a point in state space.
+Input is parsed through an AWK script, which generates JavaScript code. The generated code can be then executed directly in the Browser or using NodeJs. Each row of the generated code's output is a point in state space.
 
 ## Language choice
 

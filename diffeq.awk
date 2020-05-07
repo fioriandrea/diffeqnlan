@@ -18,8 +18,8 @@
 # 
 # x' = x^2 + t;
 # y' = x + sin(y);
-# x[0] = 10;
-# y[0] = 3;
+# init x = 10;
+# init y = 3;
 
 BEGIN {
     eof = "{EOF}"

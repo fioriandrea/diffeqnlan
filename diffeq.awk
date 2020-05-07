@@ -1,7 +1,7 @@
 # GRAMMAR
 # 
-# program -> eqList optInitList
-# eqList -> id' = expr;
+# program -> (eqStat | initStat)*
+# eqStat -> id' = expr;
 # expr -> addExpr 
 # addExpr -> mulExpr ((+ | -) mulExpr)*
 # mulExpr -> powExpr ((* | /) powExpr)*
@@ -12,7 +12,7 @@
 # argList -> expr (, expr)*
 # id -> /[a-zA-Z]+/
 # num -> /[0-9]+(\.[0-9]+)?/
-# optInitList -> init id = (num | const);
+# initStat -> init id = (num | const);
 # const -> e | pi
 # EXAMPLE
 # 
@@ -81,23 +81,15 @@ function error(msg, row) {
 
 function program(    el, il) {
     lexer()
-    el = eqList()
-    if (tok !~ initr && tok != eof)
-        error("expected init declarations, got " tok)
-    if (tok != eof) {
-        il = initList()
-        if (tok != eof) {
-            error("expected EOF, got " tok)
-        }
+    while (tok != eof) {
+        if (tok ~ derivnamer)
+            el = el "\n" eqStat()
+        else if (tok ~ initr)
+            il = il "\n" initStat()
+        else
+            error("unexpected token " tok)
     }
-    return sprintf("%s%s", el, il)
-}
-
-function eqList(    eqs) {
-    while (tok ~ derivnamer) {
-        eqs = eqs "\n" eqStat()
-    }
-    return substr(eqs, 2) # removes \n in front
+    return sprintf("%s%s", substr(el, 2), il)
 }
 
 function eqStat(    name, e) {
@@ -122,19 +114,11 @@ function eqStat(    name, e) {
     return sprintf("ode(\"%s\", %s)", name, e)
 } 
 
-function initList(    inits) {
-    while (tok ~ initr) {
-        inits = inits "\n" initStat()
-    }
-    return inits 
-}
-
 function initStat(    name, val) {
     lexer()
     if (tok == "t")
         error("cannot have init declaration of t")
-    if (!(tok in variables))
-        error("undefined variable " tok)
+    used[tok] = 1
     name = tok
     lexer()
     if (tok != "=")

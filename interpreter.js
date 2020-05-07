@@ -52,28 +52,35 @@ function initial(sym, val) {
 }
 
 function execute() {
-    let spaces = "   ";
-    process.stdout.write("t   " + spaces);
+    process.stdout.write("t ");
     for (let i = 0; i < odes.length; i++) { 
-        process.stdout.write(odes[i].symbol + "   " + spaces);
+        process.stdout.write(odes[i].symbol + " ");
     }
     process.stdout.write("\n");
 
-    process.stdout.write(variables.t.toFixed(2) + spaces);
+    process.stdout.write(variables.t + " ");
     for (let i = 0; i < odes.length; i++) { 
-        process.stdout.write(variables[odes[i].symbol].toFixed(2) + spaces);
+        process.stdout.write(variables[odes[i].symbol] + " ");
     
     }
     process.stdout.write("\n");
 
     let res;
     for (variables.t = 0; variables.t <= maxtime; variables.t += dt) {
-        process.stdout.write((variables.t + dt).toFixed(2) + spaces);
+        process.stdout.write((variables.t + dt) + " ");
         for (let i = 0; i < odes.length; i++) { 
             res = odes[i].equation();
             variables[odes[i].symbol] += res * dt;
-            process.stdout.write(variables[odes[i].symbol].toFixed(2) + spaces);
+            process.stdout.write(variables[odes[i].symbol] + " ");
         }
         process.stdout.write("\n");
     }
 }
+
+
+ode("y", number(1.000000))
+ode("x", variable("y"))
+
+initial("y", 0.000000)
+
+execute()

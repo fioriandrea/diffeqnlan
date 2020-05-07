@@ -6,7 +6,7 @@ then
     echo "$compiled" >&2
     exit 1
 fi
-result="$(cat ./interpreter.js)
-$compiled
-execute()"
-echo "$result"
+
+name=$(basename "$1")
+
+awk -v comp="$compiled" -v class="$name" '{sub("<<COMPILED>>", comp, $0); sub("<<CLASSNAME>>", class, $0); print}' ./Interpreter.java > "$name.java"

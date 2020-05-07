@@ -22,11 +22,11 @@ I choose to implement the parser in AWK mainly to do some sperimentation. I foun
  
 **program** -> (eqStat | initStat | deltaStat | maxTimeStat)\*
 
-**deltaStat** -> delta '=' constVal';'
+**deltaStat** -> 'delta' '=' constVal';'
 
-**maxTimeStat** -> maxtime '=' constVal';'
+**maxTimeStat** -> 'maxtime' '=' constVal';'
 
-**initStat** -> init id '=' constVal';'
+**initStat** -> 'init' id '=' constVal';'
 
 **eqStat** -> id''' '=' expr;
 
@@ -36,7 +36,7 @@ I choose to implement the parser in AWK mainly to do some sperimentation. I foun
 
 **mulExpr** -> powExpr (('\*' | '/') powExpr)\*
 
-**powExpr** -> unaryExpr | unaryExpr ^ powExpr
+**powExpr** -> unaryExpr | unaryExpr '^' powExpr
 
 **unaryExpr** -> primaryExpr | ('+' | '-') unaryExpr
 

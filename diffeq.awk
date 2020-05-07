@@ -90,14 +90,14 @@ function program(    el, il) {
             error("expected EOF, got " tok)
         }
     }
-    return sprintf("%s\n%s\n", el, il)
+    return sprintf("%s%s", el, il)
 }
 
 function eqList(    eqs) {
     while (tok ~ derivnamer) {
-        eqs = eqStat() "\n" eqs
+        eqs = eqs "\n" eqStat()
     }
-    return eqs
+    return substr(eqs, 2) # removes \n in front
 }
 
 function eqStat(    name, e) {
@@ -124,9 +124,9 @@ function eqStat(    name, e) {
 
 function initList(    inits) {
     while (tok ~ initr) {
-        inits = initStat() "\n" inits
+        inits = inits "\n" initStat()
     }
-    return inits
+    return inits 
 }
 
 function initStat(    name, val) {
@@ -233,8 +233,10 @@ function funCall(    fname, args) {
 }
 
 function argList(arity    , count, args) {
-    if (tok == ")") 
+    if (tok == ")") {
+        lexer()
         return "null"
+    }
     args = expr()
     while (tok == ",") {
         lexer()
@@ -244,7 +246,7 @@ function argList(arity    , count, args) {
         error("expected ) after function argument list, got " tok)
     lexer()
 
-    return args
+    return args 
 }
 
 function id() {

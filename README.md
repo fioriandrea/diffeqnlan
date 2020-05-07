@@ -16,7 +16,7 @@ Input is parsed through an AWK script, which generates JavaScript code. The gene
 
 ## Language choice
 
-I choose to implement the parser in AWK mainly to do some sperimentation. I found it an useful little language that can be used to prototype this sort of things. 
+I chose to implement the parser in AWK mainly to do some sperimentation. I found it an useful little language that can be used to prototype this sort of things. 
 
 ## Grammar
  

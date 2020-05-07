@@ -76,11 +76,3 @@ function execute() {
         process.stdout.write("\n");
     }
 }
-
-
-ode("y", number(1.000000))
-ode("x", variable("y"))
-
-initial("y", 0.000000)
-
-execute()

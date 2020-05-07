@@ -4,7 +4,7 @@ diffeqnlan is a small special purpose language made to solve ODEs numerically.
 
 ## Description
 
-A diffeqnlan program consists in a specification of a system of ODEs. The ODEs are then solved using the Eulet method. The details of the grammar and some examples are given below.
+A diffeqnlan program consists in a specification of a system of ODEs. The ODEs are then solved using the Euler method. The details of the grammar and some examples are given below.
 
 ## Project structure
 

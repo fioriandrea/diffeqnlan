@@ -51,28 +51,34 @@ function initial(sym, val) {
     variables[sym] = val;
 }
 
-function execute() {
-    process.stdout.write("t ");
-    for (let i = 0; i < odes.length; i++) { 
-        process.stdout.write(odes[i].symbol + " ");
-    }
-    process.stdout.write("\n");
+function println(buffer, delim=" ") {
+    console.log(buffer.join(delim));
+    while(buffer.length > 0)
+        buffer.pop();
+}
 
-    process.stdout.write(variables.t + " ");
+function execute() {
+    let buffer = [];
+    buffer.push("t");
     for (let i = 0; i < odes.length; i++) { 
-        process.stdout.write(variables[odes[i].symbol] + " ");
-    
+        buffer.push(odes[i].symbol);
     }
-    process.stdout.write("\n");
+    println(buffer);
+
+    buffer.push(variables.t);
+    for (let i = 0; i < odes.length; i++) { 
+        buffer.push(variables[odes[i].symbol]);
+    }
+    println(buffer);
 
     let res;
     for (variables.t = 0; variables.t < maxtime; variables.t += dt) {
-        process.stdout.write((variables.t + dt) + " ");
+        buffer.push(variables.t + dt);
         for (let i = 0; i < odes.length; i++) { 
             res = odes[i].equation();
             variables[odes[i].symbol] += res * dt;
-            process.stdout.write(variables[odes[i].symbol] + " ");
+            buffer.push(variables[odes[i].symbol]);
         }
-        process.stdout.write("\n");
+        println(buffer);
     }
 }

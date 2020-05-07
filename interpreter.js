@@ -66,7 +66,7 @@ function execute() {
     process.stdout.write("\n");
 
     let res;
-    for (variables.t = 0; variables.t <= maxtime; variables.t += dt) {
+    for (variables.t = 0; variables.t < maxtime; variables.t += dt) {
         process.stdout.write((variables.t + dt) + " ");
         for (let i = 0; i < odes.length; i++) { 
             res = odes[i].equation();

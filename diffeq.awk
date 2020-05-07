@@ -1,6 +1,8 @@
 # GRAMMAR
 # 
-# program -> (eqStat | initStat)*
+# program -> (eqStat | initStat | deltaStat | maxTimeStat)*
+# deltaStat -> delta = constVal;
+# maxTimeStat -> maxtime = constVal;
 # eqStat -> id' = expr;
 # expr -> addExpr 
 # addExpr -> mulExpr ((+ | -) mulExpr)*
@@ -14,6 +16,7 @@
 # num -> /[0-9]+(\.[0-9]+)?/
 # initStat -> init id = (num | const);
 # const -> e | pi
+# constVal -> const | nul
 # EXAMPLE
 # 
 # x' = x^2 + t;
@@ -27,6 +30,8 @@ BEGIN {
     funnamer = idr "\\("
     derivnamer = idr "'"
     initr = "^init"
+    deltar = "^delta"
+    maxtimer = "^maxtime"
     numr = "^[0-9]+(\\.[0-9]+)?"
     n = split("sin cos ln exp", nfunctions, " ")
     split("1 1 1 1", nargs, " ") # arities
@@ -65,7 +70,8 @@ function lexer() {
     }
 
     if (match(line, numr) || match(line, funnamer) || match(line, derivnamer) ||
-        match(line, initr) || match(line, idr) || match(line, /^./)) {
+        match(line, idr) || match(line, initr) ||  match(line, deltar)||
+        match(line, maxtimer) || match(line, /^./)) {
             setToken(substr(line, 1, RLENGTH))
             line = substr(line, RLENGTH + 1)
             return tok
@@ -79,17 +85,21 @@ function error(msg, row) {
     exit 1
 }
 
-function program(    el, il) {
+function program(    del, mt, el, il) {
     lexer()
     while (tok != eof) {
         if (tok ~ derivnamer)
-            el = el "\n" eqStat() ";"
+            el = el "\n" eqStat()
         else if (tok ~ initr)
-            il = il "\n" initStat() ";"
+            il = il "\n" initStat()
+        else if (tok ~ deltar)
+            del = deltaStat()
+        else if (tok ~ maxtimer) 
+            mt = maxTimeStat()
         else
             error("unexpected token " tok)
     }
-    return sprintf("%s%s", substr(el, 2), il) # substr to remove \n in front
+    return sprintf("%s%s%s%s", substr(el, 2), il, mt, del) # substr to remove \n in front
 }
 
 function eqStat(    name, e) {
@@ -111,7 +121,7 @@ function eqStat(    name, e) {
     if (tok != ";")
         error("expected \";\" after equation, got " tok)
     lexer()
-    return sprintf("ode(\"%s\", %s)", name, e)
+    return sprintf("ode(\"%s\", %s);", name, e)
 } 
 
 function initStat(    name, val) {
@@ -124,11 +134,41 @@ function initStat(    name, val) {
     if (tok != "=")
         error("expected \"=\", got " tok)
     lexer()
-    val = initVal()
+    val = constVal()
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("initial(\"%s\", %f)", name, val)
+    return sprintf("initial(\"%s\", %f);", name, val)
+}
+
+function deltaStat() {
+    if (gotDelta)
+        error("cannot define time step more then once")
+    gotDelta = NR
+    lexer()
+    if (tok != "=")
+        error("expected \"=\" in delta declaration")
+    lexer()
+    val = constVal()
+    if (tok != ";")
+        error("expected \";\", got " tok)
+    lexer()
+    return sprintf("\ndt = %f;", val)
+}
+
+function maxTimeStat() {
+    if (gotMaxTime)
+        error("cannot define maxtime more then once")
+    gotMaxTime = NR
+    lexer()
+    if (tok != "=")
+        error("expected \"=\" in maxtime declaration")
+    lexer()
+    val = constVal()
+    if (tok != ";")
+        error("expected \";\", got " tok)
+    lexer()
+    return sprintf("\nmaxtime = %f;", val)
 }
 
 function expr() {
@@ -256,7 +296,7 @@ function id() {
     return sprintf("variable(\"%s\")", oldTok)
 }
 
-function initVal() {
+function constVal() {
     if (tok in constants) {
         lexer()
         return constants[oldTok]

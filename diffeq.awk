@@ -228,20 +228,31 @@ function funCall(    fname, args) {
     if (!(fname in functions)) 
         error("function " fname " doesn't exist")
     lexer()
-    args = argList(functions[fname])
+    args = argList(fname)
     return sprintf("func(\"%s\", %s)", fname, args)
 }
 
-function argList(arity    , count, args) {
+function argList(fname   , arity, count, wrongArgs, args) {
+    arity = functions[fname]  
+    wrongArgs = "wrong number of arguments: " fname " requires " arity (arity == 1 ? " argument" : " arguments")
+    count = 0
     if (tok == ")") {
+        if (arity != 0)
+            error(wrongArgs)
         lexer()
         return "null"
     }
     args = expr()
+    count++
     while (tok == ",") {
         lexer()
         args = args ", " expr()
+        count++
+        if (count > arity) 
+            error(wrongArgs)
     }
+    if (count < arity)
+            error(wrongArgs)
     if (tok != ")")
         error("expected ) after function argument list, got " tok)
     lexer()

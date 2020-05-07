@@ -83,13 +83,13 @@ function program(    el, il) {
     lexer()
     while (tok != eof) {
         if (tok ~ derivnamer)
-            el = el "\n" eqStat()
+            el = el "\n" eqStat() ";"
         else if (tok ~ initr)
-            il = il "\n" initStat()
+            il = il "\n" initStat() ";"
         else
             error("unexpected token " tok)
     }
-    return sprintf("%s%s", substr(el, 2), il)
+    return sprintf("%s%s", substr(el, 2), il) # substr to remove \n in front
 }
 
 function eqStat(    name, e) {

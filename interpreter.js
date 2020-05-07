@@ -15,7 +15,7 @@ let unaryOperations = ({
 let functions = ({
     "sin": e => Math.sin(e),
     "cos": e => Math.cos(e),
-    "ln": e => Math.ln(e),
+    "ln": e => Math.log(e),
     "exp": e => Math.exp(e),
 });
 let odes = [];

@@ -33,7 +33,7 @@ BEGIN {
     deltar = "^delta"
     maxtimer = "^maxtime"
     numr = "^[0-9]+(\\.[0-9]+)?"
-    n = split("sin cos ln exp", nfunctions, " ")
+    n = split("sin cos log exp", nfunctions, " ")
     split("1 1 1 1", nargs, " ") # arities
     for (i = 1; i <= n; i++) 
         functions[nfunctions[i]] = nargs[i]

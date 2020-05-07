@@ -36,7 +36,14 @@ BEGIN {
     constants["pi"] = 3.14159265
     variables["t"] = 1
 
-    print program()
+    result = program()
+
+    for (u in used) { # check for never defined variables
+        if (!(u in variables)) 
+            error("undefined variable " u, used[u])
+    }
+
+    print result
 }
 
 function setToken(tv) {
@@ -67,8 +74,8 @@ function lexer() {
         error("unrecognizable character after " tok)
 }
 
-function error(msg) {
-    printf("At line %d: %s\n", NR, msg)
+function error(msg, row) {
+    printf("At line %d: %s\n", row == 0 ? NR : row, msg)
     exit 1
 }
 
@@ -245,6 +252,8 @@ function id() {
         lexer()
         return sprintf("number(%f)", constants[oldTok])
     }
+
+    used[tok] = NR
 
     lexer() 
     return sprintf("variable(\"%s\")", oldTok)

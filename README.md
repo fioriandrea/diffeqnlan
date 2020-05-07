@@ -21,21 +21,37 @@ I choose to implement the parser in AWK mainly to do some sperimentation. I foun
 ## Grammar
  
 **program** -> (eqStat | initStat | deltaStat | maxTimeStat)\*
+
 **deltaStat** -> delta '=' constVal';'
+
 **maxTimeStat** -> maxtime '=' constVal';'
+
 **initStat** -> init id '=' constVal';'
+
 **eqStat** -> id''' '=' expr;
+
 **expr** -> addExpr 
+
 **addExpr** -> mulExpr (('+' | '-') mulExpr)\*
+
 **mulExpr** -> powExpr (('\*' | '/') powExpr)\*
+
 **powExpr** -> unaryExpr | unaryExpr ^ powExpr
+
 **unaryExpr** -> primaryExpr | ('+' | '-') unaryExpr
+
 **primaryExpr** -> functionExpr | id | num | '(' expr ')'
+
 **functionExpr** -> id '(' argList? ')'
+
 **argList** -> expr (',' expr)\*
+
 **const** -> 'e' | 'pi'
+
 **constVal** -> const | num
+
 **id** -> /[a-zA-Z]+/
+
 **num** -> /[0-9]+(\.[0-9]+)?/
 
 # Examples

@@ -3,6 +3,7 @@
 # program -> (eqStat | initStat | deltaStat | maxTimeStat)*
 # deltaStat -> delta = constVal;
 # maxTimeStat -> maxtime = constVal;
+# initStat -> init id = constVal;
 # eqStat -> id' = expr;
 # expr -> addExpr 
 # addExpr -> mulExpr ((+ | -) mulExpr)*
@@ -14,9 +15,8 @@
 # argList -> expr (, expr)*
 # id -> /[a-zA-Z]+/
 # num -> /[0-9]+(\.[0-9]+)?/
-# initStat -> init id = (num | const);
 # const -> e | pi
-# constVal -> const | nul
+# constVal -> const | num
 # EXAMPLE
 # 
 # x' = x^2 + t;

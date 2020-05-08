@@ -1,6 +1,7 @@
 # GRAMMAR
 # 
-# program -> (eqStat | initStat | deltaStat | maxTimeStat)*
+# program -> (eqStat | initStat | deltaStat | maxTimeStat | constStat)*
+# constStat -> const id = expr;
 # deltaStat -> delta = expr;
 # maxTimeStat -> maxtime = expr;
 # initStat -> init id = expr;
@@ -29,6 +30,7 @@ BEGIN {
     idr = "^[a-zA-Z][a-zA-Z0-9]*"
     funnamer = idr "\\("
     derivnamer = idr "'"
+    constr = "^const"
     initr = "^init"
     deltar = "^delta"
     maxtimer = "^maxtime"
@@ -37,8 +39,8 @@ BEGIN {
     split("1 1 1 1", nargs, " ") # arities
     for (i = 1; i <= n; i++) 
         functions[nfunctions[i]] = nargs[i]
-    constants["e"] = 2.71828183
-    constants["pi"] = 3.14159265
+    constants["e"] = "number(2.71828183)"
+    constants["pi"] = "number(3.14159265)"
     variables["t"] = 1
 
     result = program()
@@ -71,7 +73,7 @@ function lexer() {
 
     if (match(line, numr) || match(line, funnamer) || match(line, derivnamer) ||
         match(line, idr) || match(line, initr) ||  match(line, deltar)||
-        match(line, maxtimer) || match(line, /^./)) {
+        match(line, maxtimer) || match(line, constr) || match(line, /^./)) {
             setToken(substr(line, 1, RLENGTH))
             line = substr(line, RLENGTH + 1)
             return tok
@@ -85,11 +87,13 @@ function error(msg, row) {
     exit 1
 }
 
-function program(    del, mt, el, il) {
+function program(    con, del, mt, el, il) {
     lexer()
     while (tok != eof) {
         if (tok ~ derivnamer)
             el = el "\n" eqStat()
+        else if (tok ~ constr) 
+            con = con "\n" constStat()
         else if (tok ~ initr)
             il = il "\n" initStat()
         else if (tok ~ deltar)
@@ -103,8 +107,6 @@ function program(    del, mt, el, il) {
 }
 
 function eqStat(    name, e) {
-    if (tok !~ derivnamer) 
-        error("expected derivative name, got " tok)
     name = substr(tok, 1, length(tok) - 1) 
     if (name == "t")
         error("cannot define a time differential equation")
@@ -123,6 +125,25 @@ function eqStat(    name, e) {
     lexer()
     return sprintf("ode(\"%s\", %s);", name, e)
 } 
+
+function constStat(    name, val) {
+    lexer()
+    if (tok in variables) 
+        error("cannot define constant " tok " : it is already a variable")
+    if (tok in constants)
+        error("constant " tok " is already defined")
+    name = tok
+    constants[name]
+    lexer()
+    if (tok != "=")
+        error("expected \"=\", got " tok)
+    lexer()
+    val = constExpr()
+    if (tok != ";")
+        error("expected \";\", got " tok)
+    lexer()
+    constants[name] = val
+}
 
 function initStat(    name, val) {
     lexer()
@@ -299,7 +320,7 @@ function id() {
 
     if (tok in constants) {
         lexer()
-        return sprintf("number(%f)", constants[oldTok])
+        return constants[oldTok]
     }
 
     used[tok] = NR

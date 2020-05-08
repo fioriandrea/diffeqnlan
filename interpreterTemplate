@@ -47,7 +47,7 @@ public class <<CLASSNAME>> {
     }
 
     private static DoubleSupplier func(String sym, DoubleSupplier ...args) {
-        return () -> functions.get("sym").apply(Arrays.asList(args));
+        return () -> functions.get(sym).apply(Arrays.asList(args));
     }
 
     private static DoubleSupplier group(DoubleSupplier expr) {

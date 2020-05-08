@@ -20,7 +20,9 @@ I chose to implement the parser in AWK mainly to do some sperimentation. I found
 
 ## Grammar
  
-**program** -> (eqStat | initStat | deltaStat | maxTimeStat)\*
+**program** -> (eqStat | initStat | deltaStat | maxTimeStat | constStat)\*
+
+**constStat** -> 'const' id '=' expr';'
 
 **deltaStat** -> 'delta' '=' expr';'
 

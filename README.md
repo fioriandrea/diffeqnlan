@@ -22,11 +22,11 @@ I chose to implement the parser in AWK mainly to do some sperimentation. I found
  
 **program** -> (eqStat | initStat | deltaStat | maxTimeStat)\*
 
-**deltaStat** -> 'delta' '=' constVal';'
+**deltaStat** -> 'delta' '=' expr';'
 
-**maxTimeStat** -> 'maxtime' '=' constVal';'
+**maxTimeStat** -> 'maxtime' '=' expr';'
 
-**initStat** -> 'init' id '=' constVal';'
+**initStat** -> 'init' id '=' expr';'
 
 **eqStat** -> id''' '=' expr;
 
@@ -47,8 +47,6 @@ I chose to implement the parser in AWK mainly to do some sperimentation. I found
 **argList** -> expr (',' expr)\*
 
 **const** -> 'e' | 'pi'
-
-**constVal** -> const | num
 
 **id** -> /[a-zA-Z]+/
 

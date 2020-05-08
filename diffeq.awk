@@ -1,9 +1,9 @@
 # GRAMMAR
 # 
 # program -> (eqStat | initStat | deltaStat | maxTimeStat)*
-# deltaStat -> delta = constVal;
-# maxTimeStat -> maxtime = constVal;
-# initStat -> init id = constVal;
+# deltaStat -> delta = expr;
+# maxTimeStat -> maxtime = expr;
+# initStat -> init id = expr;
 # eqStat -> id' = expr;
 # expr -> addExpr 
 # addExpr -> mulExpr ((+ | -) mulExpr)*
@@ -16,7 +16,6 @@
 # id -> /[a-zA-Z]+/
 # num -> /[0-9]+(\.[0-9]+)?/
 # const -> e | pi
-# constVal -> const | num
 # EXAMPLE
 # 
 # x' = x^2 + t;
@@ -25,6 +24,7 @@
 # init y = 3;
 
 BEGIN {
+    inConstExpr = 0 # if we are in an expr where no variables are allowed (e.g. rhs of init x = 10 * 2;)
     eof = "{EOF}"
     idr = "^[a-zA-Z][a-zA-Z0-9]*"
     funnamer = idr "\\("
@@ -134,14 +134,14 @@ function initStat(    name, val) {
     if (tok != "=")
         error("expected \"=\", got " tok)
     lexer()
-    val = constVal()
+    val = constExpr()
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
     return sprintf("initial(\"%s\", %f);", name, val)
 }
 
-function deltaStat() {
+function deltaStat(    val) {
     if (gotDelta)
         error("cannot define time step more then once")
     gotDelta = NR
@@ -149,14 +149,14 @@ function deltaStat() {
     if (tok != "=")
         error("expected \"=\" in delta declaration")
     lexer()
-    val = constVal()
+    val = constExpr()
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("\ndt = %f;", val)
+    return sprintf("\ndt = %s.getAsDouble();", val)
 }
 
-function maxTimeStat() {
+function maxTimeStat(    val) {
     if (gotMaxTime)
         error("cannot define maxtime more then once")
     gotMaxTime = NR
@@ -164,11 +164,18 @@ function maxTimeStat() {
     if (tok != "=")
         error("expected \"=\" in maxtime declaration")
     lexer()
-    val = constVal()
+    val = constExpr()
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
     return sprintf("\nmaxtime = %f;", val)
+}
+
+function constExpr(    result) {
+    inConstExpr = 1
+    result = expr()
+    inConstExpr = 0
+    return result
 }
 
 function expr() {
@@ -285,6 +292,11 @@ function argList(fname   , arity, count, wrongArgs, args) {
 }
 
 function id() {
+    if (inConstExpr) {
+        if (tok in variables) 
+            error(tok " cannot be a constant: it is already a variable")
+    }
+
     if (tok in constants) {
         lexer()
         return sprintf("number(%f)", constants[oldTok])

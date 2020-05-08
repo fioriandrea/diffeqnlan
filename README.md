@@ -69,7 +69,7 @@ Output (compiled)
 import java.util.*;
 import java.util.function.*;
 
-public class prog {
+public class program {
     private static double maxtime = 5;
     private static double dt = 0.1;
     private static Map<String, Double> variables = new HashMap<>();
@@ -129,6 +129,10 @@ public class prog {
 
     private static void initial(String sym, DoubleSupplier val) {
         variables.put(sym, val.getAsDouble());
+    }
+
+    private static DoubleSupplier constant(DoubleSupplier e) {
+        return number(e.getAsDouble());
     }
 
     private static void setMaxtime(DoubleSupplier val) {

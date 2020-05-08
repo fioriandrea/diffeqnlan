@@ -39,8 +39,8 @@ BEGIN {
     split("1 1 1 1", nargs, " ") # arities
     for (i = 1; i <= n; i++) 
         functions[nfunctions[i]] = nargs[i]
-    constants["e"] = "number(2.71828183)"
-    constants["pi"] = "number(3.14159265)"
+    constants["e"] = "constant(number(2.71828183))"
+    constants["pi"] = "constant(number(3.14159265))"
     variables["t"] = 1
 
     result = program()
@@ -142,7 +142,7 @@ function constStat(    name, val) {
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    constants[name] = val
+    constants[name] = sprintf("constant(%s)", val)
 }
 
 function initStat(    name, val) {
@@ -241,7 +241,7 @@ function unaryExpr(    op, second) {
         op = tok
         lexer()
         second = unaryExpr()
-        second = sprintf("unary(%s, %s)", op, second)
+        second = sprintf("unary(\"%s\", %s)", op, second)
     } else 
 	    second = primaryExpr()
 	

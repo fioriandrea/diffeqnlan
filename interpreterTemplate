@@ -63,6 +63,10 @@ public class <<CLASSNAME>> {
         variables.put(sym, val.getAsDouble());
     }
 
+    private static DoubleSupplier constant(DoubleSupplier e) {
+        return number(e.getAsDouble());
+    }
+
     private static void setMaxtime(DoubleSupplier val) {
         maxtime = val.getAsDouble();
     }

@@ -159,7 +159,7 @@ function initStat(    name, val) {
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("initial(\"%s\", %f);", name, val)
+    return sprintf("initial(\"%s\", %s);", name, val)
 }
 
 function deltaStat(    val) {
@@ -174,7 +174,7 @@ function deltaStat(    val) {
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("\ndt = %s.getAsDouble();", val)
+    return sprintf("\nsetDelta(%s);", val)
 }
 
 function maxTimeStat(    val) {
@@ -189,7 +189,7 @@ function maxTimeStat(    val) {
     if (tok != ";")
         error("expected \";\", got " tok)
     lexer()
-    return sprintf("\nmaxtime = %f;", val)
+    return sprintf("\nsetMaxtime(%s);", val)
 }
 
 function constExpr(    result) {

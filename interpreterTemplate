@@ -55,12 +55,20 @@ public class <<CLASSNAME>> {
     }
 
     private static void ode(String sym, DoubleSupplier eq) {
-        initial(sym, 0);
+        initial(sym, number(0));
         odes.put(sym, eq);
     }
 
-    private static void initial(String sym, double val) {
-        variables.put(sym, val);
+    private static void initial(String sym, DoubleSupplier val) {
+        variables.put(sym, val.getAsDouble());
+    }
+
+    private static void setMaxtime(DoubleSupplier val) {
+        maxtime = val.getAsDouble();
+    }
+
+    private static void setDelta(DoubleSupplier val) {
+        dt = val.getAsDouble();
     }
 
     private static void execute() {

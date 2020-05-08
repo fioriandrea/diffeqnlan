@@ -50,6 +50,10 @@ public class <<CLASSNAME>> {
         return () -> functions.get("sym").apply(Arrays.asList(args));
     }
 
+    private static DoubleSupplier group(DoubleSupplier expr) {
+        return expr;
+    }
+
     private static void ode(String sym, DoubleSupplier eq) {
         initial(sym, 0);
         odes.put(sym, eq);

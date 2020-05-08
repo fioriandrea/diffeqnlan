@@ -69,7 +69,7 @@ Output (compiled)
 import java.util.*;
 import java.util.function.*;
 
-public class programs {
+public class prog {
     private static double maxtime = 5;
     private static double dt = 0.1;
     private static Map<String, Double> variables = new HashMap<>();
@@ -118,13 +118,25 @@ public class programs {
         return () -> functions.get("sym").apply(Arrays.asList(args));
     }
 
+    private static DoubleSupplier group(DoubleSupplier expr) {
+        return expr;
+    }
+
     private static void ode(String sym, DoubleSupplier eq) {
-        initial(sym, 0);
+        initial(sym, number(0));
         odes.put(sym, eq);
     }
 
-    private static void initial(String sym, double val) {
-        variables.put(sym, val);
+    private static void initial(String sym, DoubleSupplier val) {
+        variables.put(sym, val.getAsDouble());
+    }
+
+    private static void setMaxtime(DoubleSupplier val) {
+        maxtime = val.getAsDouble();
+    }
+
+    private static void setDelta(DoubleSupplier val) {
+        dt = val.getAsDouble();
     }
 
     private static void execute() {
@@ -154,9 +166,9 @@ public class programs {
     public static void main(String ...args) {
         initMaps();
         ode("x", variable("x"));
-        initial("x", 1.000000);
-        maxtime = 1.000000;
-        dt = 0.010000;
+initial("x", number(1.000000));
+setMaxtime(number(1.000000));
+setDelta(number(0.010000));
         execute();
     }
 }
@@ -281,4 +293,21 @@ x' = x - x * y;
 y' = x * y - y;
 init x = 2;
 init y = 1;
+```
+
+```
+const s = 10;
+const r = 28;
+const b = 8 / 3;
+
+x' = s * (y - x);
+y' = x * (r - z) - y;
+z' = x * y - b * z;
+
+init x = 1;
+init y = 1;
+init z = 1;
+
+delta = 0.01;
+maxtime = 10;
 ```

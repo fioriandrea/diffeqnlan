@@ -17,7 +17,13 @@ public class <<CLASSNAME>> {
         binaryOperations.put("+", (l, r) -> l.getAsDouble() + r.getAsDouble());
         binaryOperations.put("*", (l, r) -> l.getAsDouble() * r.getAsDouble());
         binaryOperations.put("-", (l, r) -> l.getAsDouble() - r.getAsDouble());
-        binaryOperations.put("/", (l, r) -> l.getAsDouble() / r.getAsDouble());
+        binaryOperations.put("/", (l, r) -> {
+            double right = r.getAsDouble();
+            if (right == 0)
+                throw new ArithmeticException("/ by zero");
+            double left = l.getAsDouble();
+            return left / right; 
+        });
         binaryOperations.put("^", (l, r) -> Math.pow(l.getAsDouble(), r.getAsDouble()));
 
         unaryOperations.put("+", (r) -> r.getAsDouble());

@@ -112,6 +112,8 @@ function eqStat(    name, e) {
         error("cannot define a time differential equation")
     if (name in constants) 
         error(name " is a constant")
+    if (name in functions)
+        error(name " is a function")
     if (name in variables) 
         error(name " variable already defined")
     variables[name] = 1
@@ -317,6 +319,9 @@ function id() {
         if (tok in variables) 
             error(tok " cannot be a constant: it is already a variable")
     }
+
+    if (tok in functions)
+        error(tok " cannot be a constant: it is already a function")
 
     if (tok in constants) {
         lexer()

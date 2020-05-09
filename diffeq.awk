@@ -265,7 +265,7 @@ function primaryExpr() {
 
 function num() {
     lexer()
-    return sprintf("number(%f)", oldTok)
+    return sprintf("number(%s)", oldTok)
 }
 
 function group(    e) {

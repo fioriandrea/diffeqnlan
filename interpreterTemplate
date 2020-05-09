@@ -24,7 +24,13 @@ public class <<CLASSNAME>> {
             double left = l.getAsDouble();
             return left / right; 
         });
-        binaryOperations.put("^", (l, r) -> Math.pow(l.getAsDouble(), r.getAsDouble()));
+        binaryOperations.put("^", (l, r) -> {
+            double left = l.getAsDouble();
+            double right = r.getAsDouble();
+            if (left < 0 && Math.ceil(right) != Math.floor(right))
+                throw new ArithmeticException("rational power of negative number (no imaginary numbers allowed)");
+            return Math.pow(left, right);
+        });
 
         unaryOperations.put("+", (r) -> r.getAsDouble());
         unaryOperations.put("-", (r) -> -r.getAsDouble());

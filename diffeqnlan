@@ -30,7 +30,7 @@ then
     exit 1
 fi
 
-name=$(basename "$progName")
+name=$(basename "gen$progName")
 
 awk -v comp="$compiled" -v class="$name" '{sub("<<COMPILED>>", comp, $0); sub("<<CLASSNAME>>", class, $0); print}' ./interpreterTemplate > "$name.java"
 
@@ -38,4 +38,6 @@ if [ "$rightAway" -eq 1 ]
 then
     javac "$name.java"
     java "$name"
+    rm "$name.java"
+    rm "$name.class"
 fi
